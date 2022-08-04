@@ -1,0 +1,127 @@
+theme.js.liquid
+------------------------
+
+if (variant.available) {
+          if (variant.inventory_management === 'shopify' && variantInventoryObject.quantity > 0) {
+            document.querySelectorAll('[data-product-inventory]').forEach(el => { el.innerText = 'Leveringstid 1-2 hverdage';el.parentNode.classList.remove('inventory--preorder');el.parentNode.classList.remove('inventory--low'); });
+          } else if (variant.inventory_management === 'shopify' && variantInventoryObject.quantity < 1) {
+            if (variantInventoryObject.policy === 'continue') {
+              document.querySelectorAll('[data-product-inventory]').forEach(el => { el.innerText = 'Leveringstid 5-10 hverdage';el.parentNode.classList.add('inventory--preorder');el.parentNode.classList.remove('inventory--low'); });
+            } else {
+              document.querySelectorAll('[data-product-inventory]').forEach(el => { el.innerText = 'Ikke på lager';el.parentNode.classList.add('inventory--low');el.parentNode.classList.remove('inventory--preorder'); });
+            }
+          } else {
+            document.querySelectorAll('[data-product-inventory]').forEach(el => { el.innerText = 'Leveringstid 1-2 hverdage';el.parentNode.classList.remove('inventory--preorder');el.parentNode.classList.remove('inventory--low'); });
+          }
+        } else {
+          document.querySelectorAll('[data-product-inventory]').forEach(el => { el.innerText = 'Ikke på lager';el.parentNode.classList.add('inventory--low');el.parentNode.classList.remove('inventory--preorder'); });
+        }
+        
+        
+product-template.liquid
+----------------------------
+
+<div class="sales-point">
+      <span class="icon-and-text{%- if current_variant.available -%}{%- if current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity  < 1 -%}{%- if current_variant.inventory_policy == 'continue' -%} inventory--preorder{% else %} inventory--low{% endif %}{% endif %}{% else %} inventory--low{% endif %}">
+        <span class="icon icon--inventory"></span>
+        <span data-product-inventory data-threshold="{{ block.settings.inventory_threshold }}">
+        {%- if current_variant.available -%}
+          {%- if current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity  > 0 -%}
+            Leveringstid 1-2 hverdage
+          {%- elsif current_variant.inventory_management == 'shopify' and current_variant.inventory_quantity  < 1 -%}
+            {%- if current_variant.inventory_policy == 'continue' -%}
+              Leveringstid 5-10 hverdage
+            {%- else -%}
+              Ikke på lager
+            {%- endif -%}
+          {%- else -%}
+            Leveringstid 1-2 hverdage
+          {%- endif -%}
+        {%- else -%}
+          Ikke på lager
+        {%- endif -%}
+        </span>
+      </span>
+    </div>
+    
+ 
+ theme.css.liquid
+ ----------------------------
+    
+ .sales-points{
+  list-style:none;
+  padding:0;
+  margin:25px 0
+}
+
+.quick-add-modal .sales-points{
+    display:none
+}
+
+.sales-point{
+  display:block;
+  margin-bottom:10px
+}
+
+.sales-point:last-child{
+    margin-bottom:0;
+  }
+
+.sales-point .icon{
+    position:relative;
+    width:25px;
+    height:25px;
+    margin-right:10px
+  }
+
+[dir=rtl] .sales-point .icon{
+      margin-right:0;
+      margin-left:10px
+  }
+
+@media only screen and (max-width:768px){
+  .sales-point .icon-and-text{
+    justify-content:center;
+  }
+}
+
+@keyframes inventory-pulse{
+  0%{
+    opacity:0.5;
+  }
+  to{
+    transform:scale(2.5);
+    opacity:0;
+  }
+}
+
+.icon--inventory:after,.icon--inventory:before{
+    width:9px;
+    height:9px;
+    background:#54c63a;
+    border-radius:9px;
+    position:absolute;
+    left:0;
+    top:0;
+    content:"";
+    margin:8px;
+  }
+
+.icon--inventory:before{
+    animation:inventory-pulse 2s linear infinite;
+  }
+
+.inventory--low .icon--inventory:after,.inventory--low .icon--inventory:before{
+      background:#e32020;
+}
+
+.inventory--low{
+  color:#000000;
+}
+.inventory--preorder .icon--inventory:after,.inventory--preorder .icon--inventory:before{
+      background:#54c63a;
+}
+
+.inventory--preorder{
+  color:#000000;
+}
